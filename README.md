@@ -1,4 +1,5 @@
 # invoices-app
+<<<<<<< HEAD
 
 ## Project setup
 ```
@@ -32,3 +33,6 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+=======
+app with vue and vuex for invoices
+>>>>>>> 43400e9 (Initial commit)
