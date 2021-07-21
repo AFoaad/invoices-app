@@ -36,6 +36,7 @@
 //     HelloWorld,
 //   },
 // })
+/* eslint-disable */
 import { mapMutations } from "vuex";
 export default {
   name: "Home",
@@ -49,7 +50,6 @@ export default {
     newInvoice() {
       this.TOGGLE_INVOICE();
     },
-    // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
     toggleFilterMenu() {
       this.filterMenu = !this.filterMenu;
     },
