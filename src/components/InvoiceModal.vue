@@ -1,5 +1,5 @@
 <script>
-import { mapMutations } from "vuex";
+import { createLogger, mapMutations } from "vuex";
 import { uid } from "uid";
 import db from "../firebase/firebaseInit";
 import Loading from "../components/Loading.vue";
@@ -43,7 +43,13 @@ export default {
     );
   },
   methods: {
-    ...mapMutations(["TOGGLE_INVOICE"]),
+    ...mapMutations(["TOGGLE_INVOICE", "TOGGLE_MODAL"]),
+    checkClick(e){
+      console.log(e.target, this.$refs.invoiceWrap)
+      if(e.target === this.$refs.invoiceWrap){
+        this.TOGGLE_MODAL();
+      }
+    },
     closeInvoice() {
       this.TOGGLE_INVOICE();
     },

@@ -1,13 +1,23 @@
 <script>
+import { mapMutations } from "vuex";
 export default {
-    name:"Modal",
-
+  name: "Modal",
+  methods: {
+    ...mapMutations(["TOGGLE_INVOICE", "TOGGLE_MODAL"]),
+    closeModal() {
+      this.TOGGLE_MODAL();
+    },
+    closeInvoice() {
+      this.TOGGLE_MODAL();
+      this.TOGGLE_INVOICE();
+    },
+  },
 };
 </script>
 <template>
-  <div class="modal">
+  <div class="modal flex">
     <div class="modal-content">
-       <p>Are you sure you want to exit? Your changes will not be saved?</p>
+      <p>Are you sure you want to exit? Your changes will not be saved?</p>
       <div class="actions flex">
         <button @click="closeModal" class="purple">Return</button>
         <button @click="closeInvoice" class="red">Close</button>
@@ -16,7 +26,7 @@ export default {
   </div>
 </template>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .modal {
   z-index: 100;
   position: fixed;

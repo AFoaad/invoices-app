@@ -1,16 +1,17 @@
-import { createStore } from "vuex";
+import { createLogger, createStore } from "vuex";
 
 export default createStore({
   state: {
     invoiceModel: false,
-    ModalActive: false,
+    modalActive: false,
   },
   mutations: {
     TOGGLE_INVOICE(state) {
       state.invoiceModel = !state.invoiceModel;
     },
     TOGGLE_MODAL(state){
-      state.ModalActive = !state.ModalActive;
+      console.log(state)
+      state.modalActive = !state.modalActive;
     }
   },
   actions: {},
