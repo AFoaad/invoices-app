@@ -1,3 +1,133 @@
+<script>
+import { mapMutations } from "vuex";
+import { uid } from "uid";
+import db from "../firebase/firebaseInit";
+import Loading from "../components/Loading.vue";
+
+export default {
+  name: "invoiceModal",
+  components:{
+    Loading
+  },
+  data() {
+    return {
+      dateOptions: { year: "numeric", month: "short", day: "numeric" },
+      docId: null,
+      loading: null,
+      billerStreetAddress: null,
+      billerCity: null,
+      billerZipCode: null,
+      billerCountry: null,
+      clientName: null,
+      clientEmail: null,
+      clientStreetAddress: null,
+      clientCity: null,
+      clientZipCode: null,
+      clientCountry: null,
+      invoiceDateUnix: null,
+      invoiceDate: null,
+      paymentTerms: null,
+      paymentDueDateUnix: null,
+      paymentDueDate: null,
+      productDescription: null,
+      invoicePending: null,
+      invoiceDraft: null,
+      invoiceItemList: [],
+      invoiceTotal: 0,
+    };
+  },
+  created() {
+    this.invoiceDateUnix = Date.now();
+    this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString(
+      ("en-us", this.dateOptions)
+    );
+  },
+  methods: {
+    ...mapMutations(["TOGGLE_INVOICE"]),
+    closeInvoice() {
+      this.TOGGLE_INVOICE();
+    },
+    addNewInvoiceItem() {
+      this.invoiceItemList.push({
+        id: uid(),
+        itemName: "",
+        qty: "",
+        price: 0,
+        total: 0,
+      });
+    },
+    deleteInvoiceItem(id) {
+      this.invoiceItemList = this.invoiceItemList.filter(
+        (item) => item.id !== id
+      );
+    },
+    calInvoiceTotal() {
+      this.invoiceTotal = 0;
+      this.invoiceItemList = this.invoiceItemList.forEach(
+        (item) => (this.invoiceTotal += item.invoiceTotal)
+      );
+    },
+    publishInvoice() {
+      this.invoicePending = true;
+    },
+    saveDraft() {
+      this.invoiceDraft = true;
+    },
+    async uploadInvoice() {
+      if (this.invoiceItemList.length <= 0)
+        return alert("Please ennsure you filled out work items!");
+      this.loading = true;
+      this.calInvoiceTotal();
+      const dataBase = db.collection("invoices").doc();
+      try {
+        await dataBase.set({
+          invoiceId: uid(6),
+          billerStreetAddress: this.billerStreetAddress,
+          billerCity: this.billerCity,
+          billerZipCode: this.billerZipCode,
+          billerCountry: this.billerCountry,
+          clientName: this.clientName,
+          clientEmail: this.clientEmail,
+          clientStreetAddress: this.clientStreetAddress,
+          clientCity: this.clientCity,
+          clientZipCode: this.clientZipCode,
+          clientCountry: this.clientCountry,
+          invoiceDate: this.invoiceDate,
+          invoiceDateUnix: this.invoiceDateUnix,
+          paymentTerms: this.paymentTerms,
+          paymentDueDate: this.paymentDueDate,
+          paymentDueDateUnix: this.paymentDueDateUnix,
+          productDescription: this.productDescription,
+          invoiceItemList: { ...this.invoiceItemList }, 
+          invoiceTotal: this.invoiceTotal,
+          invoicePending: this.invoicePending,
+          invoiceDraft: this.invoiceDraft,
+          invoicePaid: null,
+        });
+      } catch (error) {
+        console.log(error);
+      }
+      this.loading = false;
+      this.TOGGLE_INVOICE();
+    },
+    submitForm() {
+      this.uploadInvoice();
+    },
+  },
+  watch: {
+    paymentTerms() {
+      const futureDate = new Date();
+      this.paymentDueDateUnix = futureDate.setDate(
+        futureDate.getDate() + parseInt(this.paymentTerms)
+      );
+      this.paymentDueDate = new Date(
+        this.paymentDueDateUnix
+      ).toLocaleDateString("en-us", this.dateOptions);
+    },
+  },
+};
+</script>
+
 <template>
   <div
     @click="checkClick"
@@ -200,131 +330,6 @@
     </form>
   </div>
 </template>
-<script>
-import { mapMutations } from "vuex";
-import { uid } from "uid";
-import db from "../firebase/firebaseInit";
-
-export default {
-  name: "invoiceModal",
-  data() {
-    return {
-      dateOptions: { year: "numeric", month: "short", day: "numeric" },
-      docId: null,
-      loading: null,
-      billerStreetAddress: null,
-      billerCity: null,
-      billerZipCode: null,
-      billerCountry: null,
-      clientName: null,
-      clientEmail: null,
-      clientStreetAddress: null,
-      clientCity: null,
-      clientZipCode: null,
-      clientCountry: null,
-      invoiceDateUnix: null,
-      invoiceDate: null,
-      paymentTerms: null,
-      paymentDueDateUnix: null,
-      paymentDueDate: null,
-      productDescription: null,
-      invoicePending: null,
-      invoiceDraft: null,
-      invoiceItemList: [],
-      invoiceTotal: 0,
-    };
-  },
-  created() {
-    this.invoiceDateUnix = Date.now();
-    this.invoiceDate = new Date(this.invoiceDateUnix).toLocaleDateString(
-      ("en-us", this.dateOptions)
-    );
-  },
-
-  methods: {
-    ...mapMutations(["TOGGLE_INVOICE"]),
-    closeInvoice() {
-      this.TOGGLE_INVOICE();
-    },
-    addNewInvoiceItem() {
-      this.invoiceItemList.push({
-        id: uid(),
-        itemName: "",
-        qty: "",
-        price: 0,
-        total: 0,
-      });
-    },
-    deleteInvoiceItem(id) {
-      this.invoiceItemList = this.invoiceItemList.filter(
-        (item) => item.id !== id
-      );
-    },
-    calInvoiceTotal() {
-      this.invoiceTotal = 0;
-      this.invoiceItemList = this.invoiceItemList.forEach(
-        (item) => (this.invoiceTotal += item.invoiceTotal)
-      );
-    },
-    publishInvoice() {
-      this.invoicePending = true;
-    },
-    saveDraft() {
-      this.invoiceDraft = true;
-    },
-    async uploadInvoice() {
-      if (this.invoiceItemList.length <= 0)
-        return alert("Please ennsure you filled out work items!");
-      this.calInvoiceTotal();
-      const dataBase = db.collection("invoices").doc();
-      try {
-        await dataBase.set({
-          invoiceId: uid(6),
-          billerStreetAddress: this.billerStreetAddress,
-          billerCity: this.billerCity,
-          billerZipCode: this.billerZipCode,
-          billerCountry: this.billerCountry,
-          clientName: this.clientName,
-          clientEmail: this.clientEmail,
-          clientStreetAddress: this.clientStreetAddress,
-          clientCity: this.clientCity,
-          clientZipCode: this.clientZipCode,
-          clientCountry: this.clientCountry,
-          invoiceDate: this.invoiceDate,
-          invoiceDateUnix: this.invoiceDateUnix,
-          paymentTerms: this.paymentTerms,
-          paymentDueDate: this.paymentDueDate,
-          paymentDueDateUnix: this.paymentDueDateUnix,
-          productDescription: this.productDescription,
-          invoiceItemList: this.invoiceItemList,
-          invoiceTotal: this.invoiceTotal,
-          invoicePending: this.invoicePending,
-          invoiceDraft: this.invoiceDraft,
-          invoicePaid: null,
-        });
-      } catch (error) {
-        console.log(error)
-      }
-
-      this.TOGGLE_INVOICE();
-    },
-    submitForm() {
-      this.uploadInvoice();
-    },
-  },
-  watch: {
-    paymentTerms() {
-      const futureDate = new Date();
-      this.paymentDueDateUnix = futureDate.setDate(
-        futureDate.getDate() + parseInt(this.paymentTerms)
-      );
-      this.paymentDueDate = new Date(
-        this.paymentDueDateUnix
-      ).toLocaleDateString("en-us", this.dateOptions);
-    },
-  },
-};
-</script>
 
 <style lang="scss" scoped>
 .invoice-wrap {
