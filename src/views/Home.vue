@@ -24,22 +24,25 @@
         </div>
       </div>
     </div>
+    <div class="">
+      <Invoice
+        v-for="(invoice, index) in invoiceData"
+        :invoice="invoice"
+        :key="index"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-// import { Options, Vue } from "vue-class-component";
-// import HelloWorld from "@/components/HelloWorld.vue"; // @ is an alias to /src
+import { mapMutations, mapState } from "vuex";
+import Invoice from "../components/Invoice.vue";
 
-// @Options({
-//   components: {
-//     HelloWorld,
-//   },
-// })
-/* eslint-disable */
-import { mapMutations } from "vuex";
 export default {
   name: "Home",
+  components: {
+    Invoice,
+  },
   data() {
     return {
       filterMenu: false,
@@ -53,6 +56,9 @@ export default {
     toggleFilterMenu() {
       this.filterMenu = !this.filterMenu;
     },
+  },
+  computed: {
+    ...mapState(["invoiceData"]),
   },
 };
 </script>

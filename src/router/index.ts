@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Home from "../views/Home.vue";
+import Invoice from "../views/invoiceView.vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "Home",
     component: Home,
+  },
+  {
+    path: "/invoice/:invoiceId",
+    name: "Invoice",
+    component: Invoice,
   },
   {
     path: "/about",
